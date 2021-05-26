@@ -1,5 +1,8 @@
-# cruise-controller
-COMPSYS 723 Assignment 2: Implementation of a basic cruise controller in Esterel
+# Cruise Controller
+COMPSYS 723 Assignment 2: Implementation of a basic cruise controller in Esterel\
+***Authors: Harrison Warahi (hwar042), Cassandra D'Souza (cdso559)***
+
+*This project was created for an assessment at The University of Auckland*
 
 # Car Driving Controller
 ## Description
