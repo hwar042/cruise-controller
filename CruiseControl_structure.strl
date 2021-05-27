@@ -1,0 +1,30 @@
+% Dummy Code Structure File %
+
+% Main Module %
+module CruiseControl:
+
+% Inputs %
+
+% Pure %
+input: On, Off, Resume, Set, QuickDecel, QuickAccel;
+% Float %
+input: Accel : float;
+input: Brake : float;
+input: Speed : float;
+
+% Outputs %
+
+% Float %
+output: CruiseSpeed : float;
+output: Throttle : float;
+
+% Enum %
+% 1:OFF 2:ON 3:STDBY 4:DISABLE %
+output: CruiseState : integer;
+
+
+signal state: integer in
+    [loop
+        present 
+
+    ]
