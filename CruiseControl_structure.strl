@@ -30,30 +30,25 @@ signal state: integer in
         end present
         pause
     end loop]
+
 ||
 % Cruise State Controller %
 run CruiseController [ ]
 
 ||
-% Cruise Speed Controller %
-run SpeedController [ ]
-
-||
-% Throttle Controller %
-run ThrottleController [ ]
+% Driving Controller %
+run DrivingController [ ]
 
 end signal
 end module
+
+% SubModules %
 
 module CruiseController:
 
 end module
 
-module SpeedController:
-
-end module
-
-module ThrottleController:
+module DrivingController:
 
 end module
 
