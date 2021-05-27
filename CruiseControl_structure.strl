@@ -22,9 +22,38 @@ output: Throttle : float;
 % 1:OFF 2:ON 3:STDBY 4:DISABLE %
 output: CruiseState : integer;
 
-
+% Get State Info %
 signal state: integer in
     [loop
-        present 
+        present state then
+            emit CruiseState(?state)
+        end present
+        pause
+    end loop]
+||
+% Cruise State Controller %
+run CruiseController [ ]
 
-    ]
+||
+% Cruise Speed Controller %
+run SpeedController [ ]
+
+||
+% Throttle Controller %
+run ThrottleController [ ]
+
+end signal
+end module
+
+module CruiseController:
+
+end module
+
+module SpeedController:
+
+end module
+
+module ThrottleController:
+
+end module
+
