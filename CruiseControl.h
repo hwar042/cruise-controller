@@ -2,9 +2,9 @@
 #define SpeedMin 30.00
 #define SpeedMax 150.00
 
+#define SpeedMinInc 32.500
+#define SpeedMaxInc 147.50
 #define SpeedInc 2.50
-#define SpeedMinComp 32.500
-#define SpeedMaxComp 147.50
 
 #define Zero 0.00
 
