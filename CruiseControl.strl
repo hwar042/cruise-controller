@@ -1,0 +1,248 @@
+% Main Module %
+module CruiseControl:
+
+% Inputs %
+
+% Pure %
+input On, Off, Resume, Set, QuickDecel, QuickAccel;
+% Float %
+input Accel : float;
+input Brake : float;
+input Speed : float;
+
+% Outputs %
+
+% Float %
+output CruiseSpeed : float;
+output Throttle : float;
+
+% Enum %
+% 1:OFF 2:ON 3:STDBY 4:DISABLE %
+output CruiseState : integer;
+
+% Get State Info %
+signal state: integer in
+    [loop
+        present state then
+            emit CruiseState(?state)
+        end present;
+        pause;
+    end loop]
+
+||
+% Cruise State Controller %
+run CruiseControlController[ signal On/On1;
+								 signal Off/Off1;
+								 signal Resume/Resume1;
+								 signal Accel/Accel1;
+								 signal Brake/Brake1;
+								 signal Speed/Speed1;
+								 signal state/CruiseState ]
+
+||
+% Driving Controller %
+run DrivingController [ signal Speed/Speed_driving;
+                        signal CruiseSpeed/CruiseSpeed_driving;
+                        signal Accel/Accel_driving;
+                        signal state/State_driving;
+                        signal Throttle/Throttle_driving]
+
+||
+% Cruise Speed Controller %
+run CruiseSpeedController [ signal  Set/Set_speed;
+                            signal QuickAccel/QuickAccel_speed;
+                            signal QuickDecel/QuickDecel_speed;
+                            signal Accel/Accel_speed;
+                            signal state/State_speed;
+                            signal Speed/Speed_speed;
+                            signal CruiseSpeed/CruiseSpeed_speed]
+
+end signal
+end module
+
+% SubModules %
+
+module CruiseController:
+constant PedalsMin : float;
+constant SpeedMin : float;
+constant SpeedMax : float;
+
+input On1;
+input Off1;
+input Resume1;
+input Accel1 : float;
+input Brake1 : float;
+input Speed1 : float;
+
+output CruiseState : integer;
+
+% OFF-1 ON-2 STDBY-3 DIS-4
+var state := 1 : integer in
+	loop
+		emit CruiseState(state);
+		pause;
+		trap T2 in
+			% OFF STATE LOGIC
+			if state = 1 then
+				present On1 then
+					state := 2; exit T2;
+				end present;
+			end if;
+			% ON STATE LOGIC
+			if state = 2 then
+				present Off1 then state := 1 end;
+				if ?Accel1 > PedalsMin then
+					state := 4; exit T2;
+				end if;
+				if ?Speed1 < SpeedMin then
+					state := 4; exit T2;
+				end if;
+				if ?Speed1 > SpeedMax then
+					state := 4; exit T2;
+				end if;
+				if ?Brake1 > PedalsMin then
+					state := 3; exit T2;
+				end if;
+				exit T2;
+			end if;
+			% STANDBY STATE LOGIC
+			if state = 3 then
+				present Off1 then
+					state := 1; exit T2;
+				end present;
+				present Resume1 then
+					if ?Accel1 > PedalsMin then
+						state := 4; exit T2;
+					end if;
+					if ?Speed1 < SpeedMin then
+						state := 4; exit T2;
+					end if;
+					if ?Speed1 > SpeedMax then
+						state := 4; exit T2;
+					end if;
+					if (?Speed1 > SpeedMin) and (?Speed1 < SpeedMax) then
+						state := 2; exit T2;
+					end if;
+				end present;
+				exit T2;
+			end if;
+			% DISABLE STATE LOGIC
+			if state = 4 then
+				present Off1 then
+					state := 1; exit T2;
+				end present;
+				if (?Accel1 < PedalsMin) and (?Speed1 > SpeedMin) and (?Speed1 < SpeedMax) then
+					state := 2; exit T2;
+				end if;
+				exit T2;
+			end if;
+		end trap
+	end loop
+end var
+end module
+
+module ThrottleController:
+    %{
+        When the cruise control is off, the car speed shall be driven by the accelerator pedal.
+        When the cruise control is on, the car speed shall be automatically regulated.
+        The regulation shall be done using a proportional and integral algorithm, with Kp and Ki factors.
+    }%
+
+    % Inputs %
+    input Speed_driving : float
+    input CruiseSpeed_driving : float
+    input Accel_driving : float
+    input State_driving : integer
+    % 1:OFF 2:ON 3:STDBY 4:DISABLE %
+
+    % Outputs %
+    Throttle_driving : float
+
+    loop
+        % Trap acts as break statement %
+        trap T_throttle in
+            % Logic for when cruisecontrol on %
+            if ?State_driving = 2 then
+                % When cruisecontrol first turns on %
+                if pre(?State_driving = 1) then
+                    % ThrottleCmd = Current Speed %
+                    emit Throttle_driving(regulateThrottle(1,?CruiseSpeed_driving, ?Speed_driving));
+                    exit T_throttle;
+                % When cruisecontrol already on %
+                else
+                    % ThrottleCmd = Regulated %
+                    emit Throttle_driving(regulateThrottle(0,?CruiseSpeed_driving, ?Speed_driving));
+                    exit T_throttle;
+                end if;
+            % Logic for when cruisecontrol off %
+            else
+                % ThrottleCmd = Accel Pedal %
+                emit Throttle_driving(?Accel_driving);
+                exit T_throttle;
+            end if;
+        end trap
+    end loop
+end module
+
+module CruiseSpeedController:
+    %{
+        The cruising speed (CruiseSpeed) shall be managed only when the cruise control is enabled, meaning when it is in the ON, STBDY, or DISABLE states.
+        The cruise speed shall be set to the current speed when the On button is pressed initially, and whenever the Set button is pressed thereafter.
+        The cruise speed shall be increased by SpeedInc km/h when the QuickAccel button is pressed, provided that this new value of the cruise speed is still lower than the maximal speed, SpeedMax km/h.
+        The cruise speed shall be decreased by SpeedInc km/h when the QuickDecel button is pressed, provided that this new value of the cruise speed is still higher than the minimal speed, SpeedMin km/h.
+        The cruise speed shall be maintained between SpeedMin and SpeedMax km/h. This means that whenever an attempt is made to set the cruise speed (either through the On, Set, QuickAccel, or QuickDecel buttons) to a value less than SpeedMin or greater than SpeedMax, the cruise speed shall be limited to either SpeedMin or SpeedMax, respectively.
+    }%
+
+    % Inputs %
+    input Set_speed;
+    input QuickAccel_speed;
+    input QuickDecel_speed;
+    input Accel_speed : float;
+    input State_speed : integer;
+    input Speed_speed;
+
+    % Outputs %
+    CruiseSpeed_speed;
+
+    loop
+        % Trap acts as break statement %
+        trap T_speed in
+            % Logic for when cruisecontrol off %
+            if ?State_speed = 1 then
+                emit CruiseSpeed(0.0);
+                exit T_speed;
+            % Logic for when cruisecontrol on %
+            else
+                % When On initially pressed %
+                if ((?State_driving = 2) and pre(?State_driving = 1)) then
+                        if ((Speed_speed > 30.0) and (Speed_speed < 150.0)) then
+                            emit CruiseSpeed_speed(?Speed_speed);
+                            exit T_speed;
+                        end if;
+                end if;
+                % When Set pressed %
+                present Set_speed then
+                    if ((Speed_speed > 30.0) and (Speed_speed < 150.0)) then
+                        emit CruiseSpeed_speed(?Speed_speed);
+                        exit T_speed;
+                    end if;
+                end present;
+                % When QuickAccel pressed %
+                present QuickAccel then
+                    if Speed_speed < 150.0 then
+                        emit CruiseSpeed_speed(?Speed_speed + 2.5);
+                        exit T_speed;
+                    end if;
+                end present;
+                % When QuickDecel pressed %
+                present QuickDecel_speed then
+                    if Speed_speed > 30.0 then
+                        emit CruiseSpeed_speed(?Speed_speed - 2.5);
+                        exit T_speed;
+                    end if;
+                end present;
+            end if;
+        end trap
+    end loop
+end module
+
