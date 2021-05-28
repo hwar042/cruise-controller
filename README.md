@@ -4,30 +4,68 @@ COMPSYS 723 Assignment 2: Implementation of a basic cruise controller in Esterel
 
 *This project was created for an assessment at The University of Auckland*
 
-## Car Driving Controller
+## Project Overview
+This Project is built in Esterel, a synchronous language.\
+The Cruise Controller is split into three submodules, a state controller, a cruise speed controller, and a throttle controller. These are executed parallel in one parent module.
+
+## Cruise State Controller
 ### Description
-Car diving control physically operates the speed of the car, either directly with the accelerator and the brake, otherwise with the throttle command given by the implemented cruise regulation functions.
+### Inputs
+### Outputs 
+### Control Logic
+<br/>
 
-The function needs to know whether the Cruise control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator and brake.
+## Cruise Speed Controller
+### Description
+Cruise Speed Control controls the managed "Cruise Speed" of the car, based on external inputs and state of the cruise control system. The cruise speed is 0 when the system is offline, the current speed when the system is first turned on or the cruise speed is set, and can be modified incrementally. The Cruise Speed is kept between two determined thresholds.
 
-### Car Driving Control Inputs:
+### Inputs
+| Type| Name | Description|
+| --- | --- | --- |
+| Pure | Set | Button Sets Cruise Speed |
+| Pure | QuickAccel | Incrememnts Cruise Speed |
+| Pure | QuickDecel | Decrements Cruise Speed |
+| Float | Accel | Accelerator Pedal Sensor |
+| Float | Speed | Current Car Speed |
+| Enum  | State | Cruise Control State |
+
+
+### Outputs 
+| Type| Name | Description|
+| --- | --- | --- |
+| Float | CruiseSpeed | Speed set by the Cruise Control |
+
+
+### Control Logic
+| Input| Output |
+| --- | --- |
+| Cruise Control is Off | `CruiseSpeed = 0` |
+| Cruise Control is going on | `CruiseSpeed = Speed` |
+| Cruise Control is set | `CruiseSpeed = Speed` |
+| Quick Accel applied | `CruiseSpeed += increment` |
+| Quick Decel applied | `CruiseSpeed -= increment` |
+<br/>
+## Throttle Controller
+### Description
+Car diving control physically operates the speed of the car, either directly with the accelerator and the brake, otherwise with the throttle command given by the implemented cruise regulation functions. The function needs to know whether the Cruise control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator pedal and both the car's current speed and cruise speed.
+
+### Inputs:
 | Type| Name | Description|
 | --- | --- | --- |
 | Float | Accel | Accelerator Pedal Sensor |
-| Float | Brake | Brake Pedal Sensor |
-| Float | cruiseSpeed | Cruise Speed Value |
+| Float | CruiseSpeed | Cruise Speed Value |
 | Float | Speed | Car Speed Sensor |
-| Enum  | Cruise | Cruise Control State |
+| Enum  | State | Cruise Control State |
 
 
-### Car Driving Control Outputs:
+### Outputs:
 | Type| Name | Description|
 | --- | --- | --- |
-| Float | ThrottleCmd | Throttle Command |
+| Float | Throttle | Throttle Output |
 
 
-### Car Driving Control Logic:
- **When Not Managing:**\
-`Throttle Command = Accel or Brake`\
-**When Managing:**\
-`Throttle Command = regulation output`
+### Control Logic:
+| Input| Output |
+| --- | --- |
+| Cruise Control is Off | `Throttle = Accelerator Sensor` |
+| Cruise Control is on | `Throttle Command = regulated output` |
