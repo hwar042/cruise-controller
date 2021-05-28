@@ -11,8 +11,21 @@ The Cruise Controller is split into three submodules, a state controller, a crui
 ## Cruise State Controller
 ### Description
 ### Inputs
+| Type| Name | Description|
+| --- | --- | --- |
+| Pure |  |  |
+| Pure |  |  |
+| Pure |  |  |
 ### Outputs 
+| Type| Name | Description|
+| --- | --- | --- |
+| Pure |  |  |
+| Pure |  |  |
+| Pure |  |  |
 ### Control Logic
+| Input| Output |
+| --- | --- |
+| Input | `Output` |
 <br/>
 
 ## Cruise Speed Controller
