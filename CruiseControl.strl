@@ -139,8 +139,8 @@ module CruiseSpeedController:
     % Constants %
     constant SpeedMin : float;
     constant SpeedMax : float;
-    constant SpeedMinComp : float;
-    constant SpeedMaxComp : float;
+    constant SpeedMinInc : float;
+    constant SpeedMaxInc : float;
     constant SpeedInc : float;
     constant Zero : float;
 
