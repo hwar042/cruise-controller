@@ -45,6 +45,7 @@ Cruise Speed Control controls the managed "Cruise Speed" of the car, based on ex
 | Quick Accel applied | `CruiseSpeed += increment` |
 | Quick Decel applied | `CruiseSpeed -= increment` |
 <br/>
+
 ## Throttle Controller
 ### Description
 Car diving control physically operates the speed of the car, either directly with the accelerator and the brake, otherwise with the throttle command given by the implemented cruise regulation functions. The function needs to know whether the Cruise control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator pedal and both the car's current speed and cruise speed.
