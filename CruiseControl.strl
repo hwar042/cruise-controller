@@ -151,7 +151,7 @@ module CruiseSpeedController:
     input Speed_speed : float;
 
     % Outputs %
-    CruiseSpeed_speed : float;
+    output CruiseSpeed_speed : float;
 
     var CurrentSpeed := Zero : float in
 	loop
