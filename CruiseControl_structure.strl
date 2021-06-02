@@ -55,7 +55,7 @@ end module
 
 % SubModules %
 
-module CruiseController:
+module CruiseFSM:
 constant PedalsMin : float;
                     constant SpeedMin : float;
                     constant SpeedMax : float;
