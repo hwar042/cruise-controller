@@ -6,31 +6,44 @@ COMPSYS 723 Assignment 2: Implementation of a basic cruise controller in Esterel
 
 ## Project Overview
 This Project is built in Esterel, a synchronous language.\
-The Cruise Controller is split into three submodules, a state controller, a cruise speed controller, and a throttle controller. These are executed parallel in one parent module.
+The Cruise Controller is split into three submodules, a state controller, a cruise speed controller, and a throttle controller. These are executed parallel in one parent module. The accelerator and break will be detected when it's value is above PedalsMin.
 
 ## Cruise State Controller
 ### Description
+The Cruise State Controller manages what state the controller should be in depending on the inputs below. It will move between four states; disabled (DISABLED), standby (STDBY), On (ON) and Off (OFF). Depending on which state the cruise controller is in, the outputs of the Throttle Controller and Speed Controller will change how they retrieve their values.
+The accelerator and break will be detected when it's value is above PedalsMin.
 ### Inputs
 | Type| Name | Description|
 | --- | --- | --- |
-| Pure |  |  |
-| Pure |  |  |
-| Pure |  |  |
+| Pure | On | Enable the cruise control |
+| Pure | Off | Disable the cruise control |
+| Pure | Resume | Resume the cruise control |
+| Float | Brake | Senses if the brake is pressed |
+| Float | Speed | Speed of the car |
+| Float | Accel | Senses if the accelerator is on |
 ### Outputs 
 | Type| Name | Description|
 | --- | --- | --- |
-| Pure |  |  |
-| Pure |  |  |
-| Pure |  |  |
+| Enum  | State | Cruise Control State |
 ### Control Logic
 | Input| Output |
 | --- | --- |
-| Input | `Output` |
+### Thresholds
+| Type| Name | Value |
+| --- | --- | --- |
+| float | PedalsMin | 3.0% |
+
 <br/>
 
 ## Cruise Speed Controller
 ### Description
-Cruise Speed Control controls the managed "Cruise Speed" of the car, based on external inputs and state of the cruise control system. The cruise speed is 0 when the system is offline, the current speed when the system is first turned on or the cruise speed is set, and can be modified incrementally. The Cruise Speed is kept between two determined thresholds.
+Cruise Speed Control controls the managed "Cruise Speed" of the car, based on external inputs and state of the cruise control system. The cruise speed is 0 kmph when the system is offline, the current speed when the system is first turned on or the cruise speed is set, and can be modified incrementally. The Cruise Speed is kept between two determined thresholds (kmph).
+
+### Thresholds
+| Type| Name | Value |
+| --- | --- | --- |
+| float | speedMin | 30.0 |
+| float | speedMax | 150.0 | 
 
 ### Inputs
 | Type| Name | Description|
@@ -61,7 +74,7 @@ Cruise Speed Control controls the managed "Cruise Speed" of the car, based on ex
 
 ## Throttle Controller
 ### Description
-Car diving control physically operates the speed of the car, either directly with the accelerator and the brake, otherwise with the throttle command given by the implemented cruise regulation functions. The function needs to know whether the Cruise control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator pedal and both the car's current speed and cruise speed.
+Car driving control physically operates the speed of the car, either directly with the accelerator and the brake, or with the throttle command given by the implemented cruise regulation functions. The function needs to know whether the Cruise Control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator pedal and both, the car's current speed and cruise speed.
 
 ### Inputs:
 | Type| Name | Description|
