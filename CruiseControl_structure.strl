@@ -32,8 +32,19 @@ signal state: integer in
     end loop]
 
 ||
-% Cruise State Controller %
-run CruiseController [ ]
+% Cruise State Controller (CSC) %
+%{
+        Depending on the environment and the inputs, the cruise state controller (CSC) will move to the appropriate state.
+        The four states are off (OFF), on (ON), standby (STDBY) and disable (DISABLE).
+    }%
+run CruiseController [  signal On/On_CSC;
+                        signal Off/Off_CSC;
+                        signal Resume/Resume_CSC;
+                        signal Accel/Accel_CSC;
+                        signal Brake/Break_CSC;
+                        signal Accel/Accel_CSC;
+                        signal State/State_CSC;
+                        signal Speed/Speed_CSC;]
 
 ||
 % Driving Controller %
@@ -45,7 +56,99 @@ end module
 % SubModules %
 
 module CruiseController:
+constant PedalsMin : float;
+                    constant SpeedMin : float;
+                    constant SpeedMax : float;
 
+                    input On_CSC;
+                    input Off_CSC;
+                    input Resume_CSC;
+                    input Accel_CSC : float;
+                    input Break_CSC : float;
+                    input Speed_CSC : float;
+
+                    output State_CSC : integer;
+
+    % OFF-1 ON-2 STDBY-3 DIS-4
+    var state := 1 : integer in
+        loop
+            emit State_CSC(state);
+            pause;
+            trap T2 in %Look into traps
+
+                % State - Off
+                if state = 1 then
+                    present On_CSC then
+                        state := 2; exit T2;
+                    end present;
+                end if;
+
+                % State - On
+                if state = 2 then
+                    present Off_CSC then 
+                        state := 1;
+                    end present;;
+                    if ?Accel_CSC > PedalsMin then
+                        state := 4; 
+                        exit T2;
+                    end if;
+                    if ?Speed_CSC < SpeedMin then
+                        state := 4; 
+                        exit T2;
+                    end if;
+                    if ?Speed_CSC > SpeedMax then
+                        state := 4; 
+                        exit T2;
+                    end if;
+                    if ?Brake_CSC > PedalsMin then
+                        state := 3; 
+                        exit T2;
+                    end if;
+                    exit T2;
+                end if;
+
+                % State - Standby
+                if  state = 3 then
+                    present Off_CSC then 
+                        state :=1;
+                    end present;
+                    present Resume_CSC then
+                        if (?Speed_CSC>SpeedMin) and (?Speed_CSC<SpeedMax) then
+                            state := 2;
+                            exit T2;
+                        end if;
+                        if ?Accel_CSC > PedalsMin then
+                            state := 4; 
+                            exit T2;
+                        end if;
+                        if ?Speed_CSC>SpeedMax then
+                            state := 4; 
+                            exit T2;
+                        end if;
+                        if ?Speed_CSC<SpeedMin then
+                            state := 4; 
+                            exit T2;
+                        end if;
+                    end present;
+                    exit T2;
+                end if;
+
+                %State - Disable
+                if state = 4 then
+                    present Off_CSC then 
+                        state :=1;
+                    end present;
+                    present On_CSC then
+                         if (?Accel_CSC < PedalsMin) and (?Speed_CSC<SpeedMax) and (?Speed_CSC>SpeedMin) then
+                            state := 2; 
+                            exit T2;
+                        end if;
+                    end present;
+                    exit T2;
+                end if;
+            end trap
+        end loop
+    end var
 end module
 
 module DrivingController:
