@@ -21,14 +21,13 @@ signal state : integer in
 			pause;
 	end loop]
 	||
-run CruiseFSM [  signal On/On_CSC;
+    run CruiseFSM [  signal On/On_CSC;
                 signal Off/Off_CSC;
                 signal Resume/Resume_CSC;
                 signal Accel/Accel_CSC;
                 signal Brake/Break_CSC;
-                signal Accel/Accel_CSC;
-                signal State/State_CSC;
-                signal Speed/Speed_CSC;]
+                signal state/State_CSC;
+                signal Speed/Speed_CSC ]
 	||
 	run CruiseSpeedController[ signal Set/Set_speed;
 							   signal QuickAccel/QuickAccel_speed;
@@ -51,17 +50,17 @@ end module
 
 module CruiseFSM:
 constant PedalsMin : float;
-                    constant SpeedMin : float;
-                    constant SpeedMax : float;
+constant SpeedMin : float;
+constant SpeedMax : float;
 
-                    input On_CSC;
-                    input Off_CSC;
-                    input Resume_CSC;
-                    input Accel_CSC : float;
-                    input Break_CSC : float;
-                    input Speed_CSC : float;
+input On_CSC;
+input Off_CSC;
+input Resume_CSC;
+input Accel_CSC : float;
+input Break_CSC : float;
+input Speed_CSC : float;
 
-                    output State_CSC : integer;
+output State_CSC : integer;
 
     % OFF-1 ON-2 STDBY-3 DIS-4
     var state := 1 : integer in
