@@ -21,13 +21,13 @@ signal state : integer in
 			pause;
 	end loop]
 	||
-    run CruiseFSM [  signal On/On_CSC;
-                signal Off/Off_CSC;
-                signal Resume/Resume_CSC;
-                signal Accel/Accel_CSC;
-                signal Brake/Break_CSC;
-                signal state/State_CSC;
-                signal Speed/Speed_CSC ]
+    run CruiseFSM [ signal On/On_CSC;
+                    signal Off/Off_CSC;
+                    signal Resume/Resume_CSC;
+                    signal Accel/Accel_CSC;
+                    signal Brake/Brake_CSC;
+                    signal state/State_CSC;
+                    signal Speed/Speed_CSC ]
 	||
 	run CruiseSpeedController[ signal Set/Set_speed;
 							   signal QuickAccel/QuickAccel_speed;
@@ -57,7 +57,7 @@ input On_CSC;
 input Off_CSC;
 input Resume_CSC;
 input Accel_CSC : float;
-input Break_CSC : float;
+input Brake_CSC : float;
 input Speed_CSC : float;
 
 output State_CSC : integer;
@@ -80,7 +80,7 @@ output State_CSC : integer;
                 if state = 2 then
                     present Off_CSC then 
                         state := 1;
-                    end present;;
+                    end present;
                     if ?Accel_CSC > PedalsMin then
                         state := 4; 
                         exit T2;
