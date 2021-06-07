@@ -6,7 +6,7 @@ COMPSYS 723 Assignment 2: Implementation of a basic cruise controller in Esterel
 
 ## Project Overview
 This Project is built in Esterel, a synchronous language.\
-The Cruise Controller is split into three submodules, a state controller, a cruise speed controller, and a throttle controller. These are executed parallel in one parent module. The accelerator and break will be detected when it's value is above PedalsMin.
+The Cruise Controller is split into three submodules, a state controller, a cruise speed controller, and a throttle controller. These are executed parallel in one parent module.
 
 ## Cruise State Controller
 ### Description
@@ -74,7 +74,7 @@ Cruise Speed Control controls the managed "Cruise Speed" of the car, based on ex
 
 ## Throttle Controller
 ### Description
-Car driving control physically operates the speed of the car, either directly with the accelerator and the brake, or with the throttle command given by the implemented cruise regulation functions. The function needs to know whether the Cruise Control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator pedal and both, the car's current speed and cruise speed.
+Car driving Control physically operates the speed of the car, either directly with the accelerator and the brake, or with the throttle command given by the implemented cruise regulation functions. The function needs to know whether the Cruise Control system is on, so it can choose how the car is controlled. It also needs to know the state of the accelerator pedal and both, the car's current speed and cruise speed.
 
 ### Inputs:
 | Type| Name | Description|
@@ -96,3 +96,9 @@ Car driving control physically operates the speed of the car, either directly wi
 | --- | --- |
 | Cruise Control is Off | `Throttle = Accelerator Sensor` |
 | Cruise Control is on | `Throttle Command = regulated output` |
+
+## How To Run Code:
+Must be on a Linus system.
+To run through the terminal, the code must be located locally (NOT IN A SHARED FOLDER), and the following commands must be run from the appropriate project directory:
+- make CruiseControl.xes
+- ./CruiseControl.xes
