@@ -11,7 +11,7 @@ The Cruise Controller is split into three submodules, a state controller, a crui
 ## Cruise State Controller
 ### Description
 The Cruise State Controller manages what state the controller should be in depending on the inputs below. It will move between four states; disabled (DISABLED), standby (STDBY), On (ON) and Off (OFF). Depending on which state the cruise controller is in, the outputs of the Throttle Controller and Speed Controller will change how they retrieve their values.
-The accelerator and break will be detected when it's value is above PedalsMin.
+The accelerator and brake will be detected when it's value is above PedalsMin.
 ### Inputs
 | Type| Name | Description|
 | --- | --- | --- |
