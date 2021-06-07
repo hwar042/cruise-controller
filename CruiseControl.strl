@@ -184,10 +184,8 @@ module CruiseSpeedController:
 			% Logic For When Cruise Control On %
 			else
 				present Set_speed then
-                    if ((CurrentSpeed > SpeedMin) and (CurrentSpeed < SpeedMax)) then
-                        CurrentSpeed := ?Speed_speed;
-                        exit T_speed;
-                    end if;
+                    CurrentSpeed := ?Speed_speed;
+                    exit T_speed;
 				end present;
 				present QuickAccel_speed then
 					if CurrentSpeed < SpeedMaxInc then
@@ -202,10 +200,8 @@ module CruiseSpeedController:
 					end if;
 				end present;
 				if ((?State_speed = 2) and (pre(?State_speed) = 1)) then
-                    if ((CurrentSpeed > SpeedMin) and (CurrentSpeed < SpeedMax)) then
-                        CurrentSpeed := ?Speed_speed;
-                        exit T_speed;
-                    end if;
+                    CurrentSpeed := ?Speed_speed;
+                    exit T_speed;
 				end if;
 				exit T_speed;
 			end if;
