@@ -110,10 +110,6 @@ output State_CSC : integer;
                         exit T2;
                     end if;
                     present Resume_CSC then
-                        if (?Speed_CSC>SpeedMin) and (?Speed_CSC<SpeedMax) then
-                            state := 2;
-                            exit T2;
-                        end if;
                         if ?Accel_CSC > PedalsMin then
                             state := 4; 
                             exit T2;
@@ -124,6 +120,10 @@ output State_CSC : integer;
                         end if;
                         if ?Speed_CSC<SpeedMin then
                             state := 4; 
+                            exit T2;
+                        end if;
+                        if (?Speed_CSC>SpeedMin) and (?Speed_CSC<SpeedMax) then
+                            state := 2;
                             exit T2;
                         end if;
                     end present;
