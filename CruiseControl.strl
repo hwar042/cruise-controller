@@ -105,6 +105,10 @@ output State_CSC : integer;
                     present Off_CSC then 
                         state :=1;
                     end present;
+                    if (?Brake_CSC > PedalsMin) then
+                        state :=3;
+                        exit T2;
+                    end if;
                     present Resume_CSC then
                         if (?Speed_CSC>SpeedMin) and (?Speed_CSC<SpeedMax) then
                             state := 2;
@@ -131,10 +135,14 @@ output State_CSC : integer;
                     present Off_CSC then 
                         state :=1;
                     end present;
-                        if (?Accel_CSC < PedalsMin) and (?Speed_CSC<SpeedMax) and (?Speed_CSC>SpeedMin) then
-                            state := 2; 
-                            exit T2;
-                        end if;
+                    if (?Brake_CSC > PedalsMin) then
+                        state :=3;
+                        exit T2;
+                    end if;
+                    if (?Accel_CSC < PedalsMin) and (?Speed_CSC<SpeedMax) and (?Speed_CSC>SpeedMin) then
+                        state := 2; 
+                        exit T2;
+                    end if;
                     exit T2;
                 end if;
             end trap
