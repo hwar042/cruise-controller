@@ -200,7 +200,7 @@ module CruiseSpeedController:
 					end if;
 				end present;
 				if ((?State_speed = 2) and (pre(?State_speed) = 1)) then
-                    CurrentSpeed := ?Speed_speed;
+                    emit CruiseSpeed_speed(Speed_speed);
                     exit T_speed;
 				end if;
 				exit T_speed;
