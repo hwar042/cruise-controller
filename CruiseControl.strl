@@ -29,13 +29,13 @@ signal state : integer in
                     signal state/State_CSC;
                     signal Speed/Speed_CSC ]
 	||
-	run CruiseSpeedController[ signal Set/Set_speed;
-							   signal QuickAccel/QuickAccel_speed;
-							   signal QuickDecel/QuickDecel_speed;
-							   signal Accel/Accel_speed;
-							   signal state/State_speed;
-							   signal Speed/Speed_speed;
-							   signal CruiseSpeed/CruiseSpeed_speed ]
+	run CruiseSpeedController[ signal Set/Set2;
+							   signal QuickDecel/QuickDecel2;
+							   signal QuickAccel/QuickAccel2;
+							   signal Accel/Accel2;
+							   signal state/CruiseState2;
+							   signal Speed/Speed2;
+							   signal CruiseSpeed/CruiseSpeed2  ]
 	||
 	run ThrottleController[ signal Accel/Accel_driving;
 							signal CruiseSpeed/CruiseSpeed_driving;
@@ -144,66 +144,55 @@ output State_CSC : integer;
     end var
 end module
 
-module CruiseSpeedController:
-    %{
-        The cruising speed (CruiseSpeed) shall be managed only when the cruise control is enabled, meaning when it is in the ON, STBDY, or DISABLE states.
-        The cruise speed shall be set to the current speed when the On button is pressed initially, and whenever the Set button is pressed thereafter.
-        The cruise speed shall be increased by SpeedInc km/h when the QuickAccel button is pressed, provided that this new value of the cruise speed is still lower than the maximal speed, SpeedMax km/h.
-        The cruise speed shall be decreased by SpeedInc km/h when the QuickDecel button is pressed, provided that this new value of the cruise speed is still higher than the minimal speed, SpeedMin km/h.
-        The cruise speed shall be maintained between SpeedMin and SpeedMax km/h. This means that whenever an attempt is made to set the cruise speed (either through the On, Set, QuickAccel, or QuickDecel buttons) to a value less than SpeedMin or greater than SpeedMax, the cruise speed shall be limited to either SpeedMin or SpeedMax, respectively.
-    }%
+module CruiseSpeedManagement:
 
-    % Constants %
-    constant SpeedMin : float;
-    constant SpeedMax : float;
-    constant SpeedMinInc : float;
-    constant SpeedMaxInc : float;
-    constant SpeedInc : float;
-    constant Zero : float;
+constant SpeedMini : float;
+constant SpeedMaxi : float;
+constant SpeedInc : float;
+constant Zero : float;
 
-    % Inputs %
-    input Set_speed;
-    input QuickAccel_speed;
-    input QuickDecel_speed;
-    input Accel_speed : float;
-    input State_speed : integer;
-    input Speed_speed : float;
+input Set2;
+input QuickDecel2;
+input QuickAccel2;
+input Accel2 : float;
+input CruiseState2 : integer;
 
-    % Outputs %
-    output CruiseSpeed_speed : float;
+output CruiseSpeed2 : float;
+input Speed2 : float;
 
-    var NewCruiseSpeed := Zero : float in
+var CurrentSpeed := Zero : float in
 	loop
-		emit CruiseSpeed_speed(NewCruiseSpeed);
+		emit CruiseSpeed2(CurrentSpeed);
 		pause;
-		trap T_speed in
-			% Logic For When Cruise Control Off %
-			if ?State_speed = 1 then
-				NewCruiseSpeed := Zero;
-				exit T_speed;
-			% Logic For When Cruise Control On %
+		trap T3 in
+			% OFF STATE LOGIC
+			if ?CruiseState2 = 1 then
+				CurrentSpeed := Zero;
+				exit T3;
+			% ALL OTHER STATES
 			else
-				present Set_speed then
-                    NewCruiseSpeed := Speed_speed;
-                    exit T_speed;
+				present Set2 then
+					CurrentSpeed := ?Speed2;
+					exit T3;
 				end present;
-				present QuickAccel_speed then
-					if NewCruiseSpeed < SpeedMaxInc then
-						NewCruiseSpeed := NewCruiseSpeed + SpeedInc;
-						exit T_speed;
+				present QuickAccel2 then
+					if CurrentSpeed < SpeedMaxi then
+						CurrentSpeed := CurrentSpeed + SpeedInc;
+						exit T3;
 					end if;
 				end present;
-				present QuickDecel_speed then
-					if NewCruiseSpeed > SpeedMinInc then
-						NewCruiseSpeed := NewCruiseSpeed - SpeedInc;
-						exit T_speed;
+				present QuickDecel2 then
+					if CurrentSpeed > SpeedMini then
+						CurrentSpeed := CurrentSpeed - SpeedInc;
+						exit T3;
 					end if;
 				end present;
-				if ((?State_speed = 2) and (pre(?State_speed) = 1)) then
-                    NewCruiseSpeed := Speed_speed;
-                    exit T_speed;
+				% IF JUST SWITCHED TO ON STATE, LOAD CURRENT SPEED
+				if ((?CruiseState2 = 2) and (pre(?CruiseState2) = 1)) then
+					CurrentSpeed := ?Speed2;
+					exit T3;
 				end if;
-				exit T_speed;
+				exit T3;
 			end if;
 		end trap
 	end loop
