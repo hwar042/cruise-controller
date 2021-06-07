@@ -178,35 +178,35 @@ module CruiseSpeedController:
     % Outputs %
     output CruiseSpeed_speed : float;
 
-    var CurrentSpeed := Zero : float in
+    var NewCruiseSpeed := Zero : float in
 	loop
-		emit CruiseSpeed_speed(CurrentSpeed);
+		emit CruiseSpeed_speed(NewCruiseSpeed);
 		pause;
 		trap T_speed in
 			% Logic For When Cruise Control Off %
 			if ?State_speed = 1 then
-				CurrentSpeed := Zero;
+				NewCruiseSpeed := Zero;
 				exit T_speed;
 			% Logic For When Cruise Control On %
 			else
 				present Set_speed then
-                    CurrentSpeed := ?Speed_speed;
+                    NewCruiseSpeed := ?Speed_speed;
                     exit T_speed;
 				end present;
 				present QuickAccel_speed then
-					if CurrentSpeed < SpeedMaxInc then
-						CurrentSpeed := CurrentSpeed + SpeedInc;
+					if NewCruiseSpeed < SpeedMaxInc then
+						NewCruiseSpeed := NewCruiseSpeed + SpeedInc;
 						exit T_speed;
 					end if;
 				end present;
 				present QuickDecel_speed then
-					if CurrentSpeed > SpeedMinInc then
-						CurrentSpeed := CurrentSpeed - SpeedInc;
+					if NewCruiseSpeed > SpeedMinInc then
+						NewCruiseSpeed := NewCruiseSpeed - SpeedInc;
 						exit T_speed;
 					end if;
 				end present;
 				if ((?State_speed = 2) and (pre(?State_speed) = 1)) then
-                    CurrentSpeed := ?Speed_speed;
+                    NewCruiseSpeed := ?Speed_speed;
                     exit T_speed;
 				end if;
 				exit T_speed;
