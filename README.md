@@ -100,5 +100,5 @@ Car driving Control physically operates the speed of the car, either directly wi
 ## How To Run Code:
 Must be on a Linus system.
 To run through the terminal, the code must be located locally (NOT IN A SHARED FOLDER), and the following commands must be run from the appropriate project directory:
-- make CruiseControl.xes
-- ./CruiseControl.xes
+`make CruiseControl.xes`
+`./CruiseControl.xes`
