@@ -80,6 +80,7 @@ output State_CSC : integer;
                 if state = 2 then
                     present Off_CSC then 
                         state := 1;
+                        exit T2;
                     end present;
                     if ?Accel_CSC > PedalsMin then
                         state := 4; 
@@ -104,6 +105,7 @@ output State_CSC : integer;
                 if  state = 3 then
                     present Off_CSC then 
                         state :=1;
+                        exit T2;
                     end present;
                     if (?Brake_CSC > PedalsMin) then
                         state :=3;
@@ -134,6 +136,7 @@ output State_CSC : integer;
                 if state = 4 then
                     present Off_CSC then 
                         state :=1;
+                        exit T2;
                     end present;
                     if (?Brake_CSC > PedalsMin) then
                         state :=3;
